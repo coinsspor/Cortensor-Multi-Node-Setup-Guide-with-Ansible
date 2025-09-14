@@ -388,6 +388,41 @@ chown cortensor:cortensor /home/cortensor/.cortensor/bin/cortensord
 systemctl start cortensor-1 cortensor-2 cortensor-3 cortensor-4
 ```
 
+### Runtime Address Update (DevNet Changes)
+When transitioning between DevNets (e.g., Dev6 to Dev7), update the runtime address:
+
+```bash
+# Stop all nodes
+systemctl stop cortensor-1 cortensor-2 cortensor-3 cortensor-4
+
+# Update runtime address (example for Dev7)
+# Check Discord announcements for the latest runtime address
+NEW_RUNTIME="0x8d67608D0F674F359DE0e420857739ECBDeb6B90"  # Dev7 example
+
+# Update all node configurations
+for i in 1 2 3 4; do
+    sed -i "s/CONTRACT_ADDRESS_RUNTIME=.*/CONTRACT_ADDRESS_RUNTIME=\"${NEW_RUNTIME}\"/" /home/cortensor/.cortensor/node-${i}/.env
+done
+
+# Verify the update
+for i in 1 2 3 4; do
+    echo "Node $i:"
+    grep "CONTRACT_ADDRESS_RUNTIME" /home/cortensor/.cortensor/node-${i}/.env
+done
+
+# Restart all nodes
+systemctl start cortensor-1 cortensor-2 cortensor-3 cortensor-4
+
+# Check status after 30 seconds
+sleep 30
+for i in 1 2 3 4; do echo "Node $i: $(systemctl is-active cortensor-${i})"; done
+```
+
+**Important**: Always check official Cortensor Discord announcements for:
+- Current DevNet runtime addresses
+- Staking requirements (amount and pool)
+- Any other contract address changes
+
 ## Troubleshooting
 
 ### IPFS Lock Issues
